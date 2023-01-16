@@ -11,7 +11,8 @@ namespace SpaceMiner.Server;
 
 public static class Networking
 {
-    public const string GlobalAddress = "51.195.45.78";
+    //public const string GlobalAddress = "51.195.45.78";
+    public const string GlobalAddress = "localhost";
     private const int Port = 25564;
     private const string Key = "SuperSecretKey";
     private const int TickRate = 1000 / 60;

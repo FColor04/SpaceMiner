@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,10 +19,17 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Texture2D playerTexture;
+    private Texture2D groundTexture;
+    private Texture2D treeTexture;
     private NetworkPlayerInput _lastInput;
     private Vector2 _cameraPosition;
     private TextBox _ping;
-
+    public const int Scale = 2;
+    private const int Seed = 310351;
+    private Random _random;
+    private List<Vector2> trees = new ();
+    private List<Entity> _entities = new();
+    
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -30,6 +39,11 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
+        _random = new Random(Seed);
+        for (int i = 0; i < 15; i++)
+        {
+            trees.Add(new Vector2(_random.NextSingle() * 640 - 320, _random.NextSingle() * 640 - 320));
+        }
         base.Initialize();
         Console.WriteLine($"{DateTime.Now:T} - Game initialized.");
     }
@@ -51,8 +65,13 @@ public class Game1 : Game
         UI.Desktop.Widgets.Add(_ping);
         
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        playerTexture = Content.Load<Texture2D>("player"); // load texture
-
+        
+        
+        playerTexture = Content.Load<Texture2D>("player");
+        groundTexture = Content.Load<Texture2D>("ground");
+        treeTexture = Content.Load<Texture2D>("tree");
+        
+        
         Debug.WriteLine($"{DateTime.Now:T} - Content loaded.");
     }
 
@@ -106,24 +125,45 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        
+        for (int x = -groundTexture.Width * Scale; x < _graphics.PreferredBackBufferWidth + groundTexture.Width * Scale; x += groundTexture.Width * Scale)
+        {
+            for (int y = -groundTexture.Height * Scale; y < _graphics.PreferredBackBufferHeight + groundTexture.Height * Scale; y += groundTexture.Height * Scale)
+            {
+                var tilePosition = new Vector2(x - _cameraPosition.X % (groundTexture.Width * Scale), y - _cameraPosition.Y % (groundTexture.Height * Scale));
+                _spriteBatch.Draw(groundTexture, new Rectangle(tilePosition.ToPoint(), new Point(groundTexture.Width * Scale, groundTexture.Height * Scale)), Color.White);
+            }
+        }
+        
         if (Networking.ClientData != null)
         {
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            foreach (var player in Networking.ClientData.Players)
+            _entities = Networking.ClientData.Players.Select(player => new Entity()
             {
-                _spriteBatch.Draw(playerTexture, new Rectangle(
-                    WorldToScreenPosition(player.Value.SimulatedPosition), 
-                    new Point(64, 64)), 
+                texture = playerTexture,
+                position = player.Value.SimulatedPosition,
+                origin = new Vector2(playerTexture.Width / 2f, playerTexture.Height)
+            }).Concat(trees.Select(tree => new Entity()
+            {
+                texture = treeTexture,
+                position = tree,
+                origin = new Vector2(treeTexture.Width / 2f, treeTexture.Height)
+            })).OrderBy(entity => entity.position.Y).ToList();
+            foreach (var entity in _entities)
+            {
+                _spriteBatch.Draw(
+                    entity.texture, 
+                    new Rectangle(WorldToScreenPosition(entity.position), entity.GetSize), 
                     null, 
                     Color.White, 
                     0, 
-                    new Vector2(0.5f, 0f),
+                    entity.Origin, 
                     SpriteEffects.None, 
                     0);
             }
-
-            _spriteBatch.End();
         }
+        
+        _spriteBatch.End();
 
         UI.Render();
 
@@ -134,4 +174,13 @@ public class Game1 : Game
     {
         return ((input + new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) / 2f) - _cameraPosition).ToPoint();
     }
+}
+
+internal struct Entity
+{
+    public Texture2D texture;
+    public Vector2 position;
+    public Point GetSize => (texture.Bounds.Size.ToVector2() * Game1.Scale).ToPoint();
+    public Vector2? origin;
+    public Vector2 Origin => origin ?? (GetSize.ToVector2() / 2f);
 }
