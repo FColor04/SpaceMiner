@@ -94,7 +94,7 @@ public class Game1 : Game
             {
                 var player = Networking.ClientData.Players[peerId];
                 player.SimulatedPosition = Vector2.Lerp(player.SimulatedPosition, player.Position, deltaTime * 16f);
-                player.SimulatedPosition += player.NetworkPlayerInput.GetMovementVector() * deltaTime * 512;
+                player.SimulatedPosition += player.NetworkPlayerInput.GetMovementVector() * deltaTime * 256;
                 Debug.WriteLine(player.Position);
                 Networking.ClientData.Players[peerId] = player;
                 if (Networking.MyPeer.RemoteId == peerId)
