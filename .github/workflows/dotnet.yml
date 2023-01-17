@@ -10,9 +10,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  Publish:
 
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v3
@@ -34,11 +37,8 @@ jobs:
       run: zip -qq -r "SpaceMiner win-x64.zip" SpaceMiner/bin/Release/net6.0/win-x64/publish/
     - name: Zip Linux
       run: zip -qq -r "SpaceMiner linux-x64.zip" SpaceMiner/bin/Release/net6.0/linux-x64/publish/
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - uses: ncipollo/release-action@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: true
-        title: "Development Build"
-        files: |
-          *.zip
+        tag: "latest"
+        commit: "main"
+        artifacts: "*.zip"
