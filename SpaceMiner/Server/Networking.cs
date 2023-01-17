@@ -198,7 +198,7 @@ public static class Networking
                 for (var i = 0; i < _serverData.Players.Count; i++)
                 {
                     var player = _serverData.Players[i];
-                    player.Position += player.NetworkPlayerInput.GetMovementVector() * TickDelta * 256;
+                    player.Position += player.NetworkPlayerInput.GetMovementVector() * TickDelta * 512;
                     _serverData.Players[i] = player;
                 }
 
