@@ -26,12 +26,14 @@ jobs:
       run: dotnet publish -c Release -r linux-x64 --self-contained
     - name: Publish Windows
       run: dotnet publish -c Release -r win-x64 --self-contained
-    - uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r "SpaceMiner win-x64.zip" /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish/
-    - uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r "SpaceMiner linux-x64.zip" /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/linux-x64/publish/
+    - name: Install zip
+      uses: montudor/action-zip@v1
+    - name: Debug list
+      run: ls && pwd
+    - name: Zip Windows
+      run: zip -qq -r "SpaceMiner win-x64.zip" SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish/
+    - name: Zip Linux
+      run: zip -qq -r "SpaceMiner linux-x64.zip" SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/linux-x64/publish/
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
