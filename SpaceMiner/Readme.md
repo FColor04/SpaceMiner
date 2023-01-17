@@ -5,3 +5,10 @@ Factorio inspired survival game \
 ## Download
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/fcolor04/spaceminer/main?label=Last%20Commit) ![GitHub release (by tag)](https://img.shields.io/github/downloads/fcolor04/spaceminer/latest/total?label=Downloads) \
 Get it at [Releases](https://github.com/FColor04/SpaceMiner/releases) page!
+
+## Changelog
+
+### 0.0.1
+- Added player movement
+- Added connection to global server
+- Added basic world
