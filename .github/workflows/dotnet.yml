@@ -1,0 +1,45 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Publish:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Publish Linux
+      run: dotnet publish -c Release -r linux-x64 --self-contained
+    - name: Publish Windows
+      run: dotnet publish -c Release -r win-x64 --self-contained
+    - name: Install zip
+      uses: montudor/action-zip@v1
+    - name: Debug list
+      run: ls && pwd
+    - name: Zip Windows
+      run: zip -qq -r "SpaceMiner win-x64.zip" SpaceMiner/bin/Release/net6.0/win-x64/publish/
+    - name: Zip Linux
+      run: zip -qq -r "SpaceMiner linux-x64.zip" SpaceMiner/bin/Release/net6.0/linux-x64/publish/
+    - uses: ncipollo/release-action@v1
+      with:
+        tag: "latest"
+        commit: "main"
+        artifacts: "*.zip"
+        allowUpdates: true
