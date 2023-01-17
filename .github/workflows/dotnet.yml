@@ -42,3 +42,4 @@ jobs:
         tag: "latest"
         commit: "main"
         artifacts: "*.zip"
+        allowUpdates: true
