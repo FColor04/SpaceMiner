@@ -43,3 +43,6 @@ jobs:
         commit: "main"
         artifacts: "*.zip"
         allowUpdates: true
+        removeArtifacts: true
+        replacesArtifacts: true
+        generateReleaseNotes: true
