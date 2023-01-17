@@ -31,9 +31,9 @@ jobs:
     - name: Debug list
       run: ls && pwd
     - name: Zip Windows
-      run: zip -qq -r "SpaceMiner win-x64.zip" SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish/
+      run: zip -qq -r "SpaceMiner win-x64.zip" SpaceMiner/bin/Release/net6.0/win-x64/publish/
     - name: Zip Linux
-      run: zip -qq -r "SpaceMiner linux-x64.zip" SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/linux-x64/publish/
+      run: zip -qq -r "SpaceMiner linux-x64.zip" SpaceMiner/bin/Release/net6.0/linux-x64/publish/
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
