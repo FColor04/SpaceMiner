@@ -56,9 +56,10 @@ public class Game1 : Game
         var hostButton = new TextButton() {Text = "Host", Left = 24, Top = 0, Padding = new Thickness(8)};
         hostButton.Click += (_, _) => Networking.StartServer();
         UI.Desktop.Widgets.Add(hostButton);
-        
+
         var connectButton = new TextButton() {Text = "Connect", Left = 24, Top = 48, Padding = new Thickness(8)};
         connectButton.Click += (_, _) => Networking.StartClient(Networking.GlobalAddress);
+        connectButton.TextColor = Networking.PingServer() ? Color.Green : Color.Red;
         UI.Desktop.Widgets.Add(connectButton);
         
         _ping = new TextBox(){Top = 0, Left = _graphics.PreferredBackBufferWidth - 48, Text = "0"};

@@ -71,7 +71,7 @@ public static class Networking
         writer.Put((int) MessageType.PlayerInput);
         writer.Put(Input.ReadPlayerInput());
         Client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
-        Client.PollEvents();
+        Client.TriggerUpdate();
     }
     
     public static bool StartClient(string address)
@@ -84,7 +84,7 @@ public static class Networking
 
         Client.Start();
         MyPeer = Client.Connect(address, Port, Key);
-
+        
         ClientData = new ClientData();
         
         ClientListener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
@@ -237,5 +237,10 @@ public static class Networking
         _shutdownServer = true;
         while (_isServerActive)
             await Task.Delay(25);
+    }
+
+    public static bool PingServer()
+    {
+        return Client.SendUnconnectedMessage(new NetDataWriter(), GlobalAddress, Port);
     }
 }
