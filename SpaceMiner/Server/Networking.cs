@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using SpaceMiner.Utils;
@@ -12,7 +13,7 @@ namespace SpaceMiner.Server;
 public static class Networking
 {
     public const string GlobalAddress = "51.195.45.78";
-    //public const string GlobalAddress = "localhost";
+    // public const string GlobalAddress = "localhost";
     private const int Port = 25564;
     private const string Key = "SuperSecretKey";
     private const int TickRate = 1000 / 60;
@@ -70,6 +71,7 @@ public static class Networking
         writer.Put((int) MessageType.PlayerInput);
         writer.Put(Input.ReadPlayerInput());
         Client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+        Client.PollEvents();
     }
     
     public static bool StartClient(string address)
@@ -190,32 +192,43 @@ public static class Networking
         _isServerActive = true;
         var serverThread = new Thread(() =>
         {
+            var serverTimer = new System.Timers.Timer();
+            serverTimer.Elapsed += ServerTick;
+            serverTimer.Interval = TickRate;
+            serverTimer.AutoReset = true;
+            serverTimer.Enabled = true;
             while (!_shutdownServer)
             {
-                TickDelta = (float) (DateTime.Now - _lastTickDate).TotalSeconds;
-                
-                Server.PollEvents();
-                for (var i = 0; i < _serverData.Players.Count; i++)
-                {
-                    var player = _serverData.Players[i];
-                    player.Position += player.NetworkPlayerInput.GetMovementVector() * TickDelta * 256;
-                    _serverData.Players[i] = player;
-                }
-
-                foreach (var player in _serverData.PlayerDataToSend)
-                {
-                    Server.SendToAll(GetPlayerWriter(player), DeliveryMethod.ReliableOrdered);
-                }
-                
-                _lastTickDate = DateTime.Now;
                 Thread.Sleep(TickRate);
             }
+            serverTimer.Enabled = false;
+            serverTimer.Dispose();
             Server.Stop();
             _isServerActive = false;
         });
         serverThread.Start();
         Debug.WriteLine($"{DateTime.Now:T} [SERVER] - Server started on port {Port}.");
         return true;
+    }
+
+    private static void ServerTick(object state, ElapsedEventArgs args)
+    {
+        TickDelta = (float) (DateTime.Now - _lastTickDate).TotalSeconds;
+                
+        Server.PollEvents();
+        for (var i = 0; i < _serverData.Players.Count; i++)
+        {
+            var player = _serverData.Players[i];
+            player.Position += player.NetworkPlayerInput.GetMovementVector() * TickDelta * 256;
+            _serverData.Players[i] = player;
+        }
+
+        foreach (var player in _serverData.PlayerDataToSend)
+        {
+            Server.SendToAll(GetPlayerWriter(player), DeliveryMethod.ReliableOrdered);
+        }
+                
+        _lastTickDate = DateTime.Now;
     }
 
     public static async Task StopServer()
