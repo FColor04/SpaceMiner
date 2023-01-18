@@ -57,7 +57,7 @@ public class Game1 : Game
         hostButton.Click += (_, _) => Networking.StartServer();
         UI.Desktop.Widgets.Add(hostButton);
         
-        var connectButton = new TextButton() {Text = "Connect", Left = 24, Top = 36, Padding = new Thickness(8)};
+        var connectButton = new TextButton() {Text = "Connect", Left = 24, Top = 48, Padding = new Thickness(8)};
         connectButton.Click += (_, _) => Networking.StartClient(Networking.GlobalAddress);
         UI.Desktop.Widgets.Add(connectButton);
         
@@ -67,9 +67,9 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
         
-        playerTexture = Content.Load<Texture2D>("player");
-        groundTexture = Content.Load<Texture2D>("ground");
-        treeTexture = Content.Load<Texture2D>("tree");
+        playerTexture = Content.Load<Texture2D>("Player");
+        groundTexture = Content.Load<Texture2D>("Ground");
+        treeTexture = Content.Load<Texture2D>("Tree");
         
         
         Debug.WriteLine($"{DateTime.Now:T} - Content loaded.");
@@ -94,8 +94,9 @@ public class Game1 : Game
             {
                 var player = Networking.ClientData.Players[peerId];
                 player.SimulatedPosition = Vector2.Lerp(player.SimulatedPosition, player.Position, deltaTime * 16f);
-                player.SimulatedPosition += player.NetworkPlayerInput.GetMovementVector() * deltaTime * 256;
-                Debug.WriteLine(player.Position);
+                var movementVector = (peerId == Networking.MyPeer.Id ? playerInput : player.NetworkPlayerInput).GetMovementVector();
+                player.SimulatedPosition += movementVector * deltaTime * 256;
+
                 Networking.ClientData.Players[peerId] = player;
                 if (Networking.MyPeer.RemoteId == peerId)
                 {
