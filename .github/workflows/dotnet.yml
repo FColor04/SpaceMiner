@@ -31,17 +31,15 @@ jobs:
       run: dotnet publish -c Release -r win-x64 --self-contained -p:PublishTrimmed=True -p:TrimMode=CopyUsed
     - name: Install zip
       uses: montudor/action-zip@v1
-    - name: Debug list
-      run: ls && pwd
     - name: Zip Windows
-      run: zip -qq -r -j "SpaceMiner win-x64.zip" SpaceMiner/bin/Release/net6.0/win-x64/publish
+      run: cd /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish && zip -qq -r "SpaceMiner win-x64.zip" ./*
     - name: Zip Linux
-      run: zip -qq -r -j "SpaceMiner linux-x64.zip" SpaceMiner/bin/Release/net6.0/linux-x64/publish
+      run: cd /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/linux-x64/publish && zip -qq -r "SpaceMiner linux-x64.zip" ./*
     - uses: ncipollo/release-action@v1
       with:
         tag: "latest"
         commit: "main"
-        artifacts: "*.zip"
+        artifacts: "./**/*.zip"
         allowUpdates: true
         removeArtifacts: true
         replacesArtifacts: true
