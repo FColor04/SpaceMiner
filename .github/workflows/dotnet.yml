@@ -34,12 +34,12 @@ jobs:
     - name: Zip Windows
       run: cd /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish && zip -qq -r "SpaceMiner win-x64.zip" ./*
     - name: Zip Linux
-      run: cd /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/win-x64/publish && zip -qq -r "SpaceMiner linux-x64.zip" ./*
+      run: cd /home/runner/work/SpaceMiner/SpaceMiner/SpaceMiner/bin/Release/net6.0/linux-x64/publish && zip -qq -r "SpaceMiner linux-x64.zip" ./*
     - uses: ncipollo/release-action@v1
       with:
         tag: "latest"
         commit: "main"
-        artifacts: "*.zip"
+        artifacts: "./**/*.zip"
         allowUpdates: true
         removeArtifacts: true
         replacesArtifacts: true
